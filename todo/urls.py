@@ -5,6 +5,6 @@ app_name = "todo"
 
 urlpatterns = [
     path('', home_view, name="home"),
-    path('details/<int:id>', views.details, name='details'),
+    path('details/<int:id>', details, name='details'),
 
 ]

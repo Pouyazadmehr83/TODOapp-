@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,HttpResponse
 from django.contrib.auth.decorators import login_required
 from .models import Task
 
@@ -10,3 +10,10 @@ def home_view(request):
     'task': task
   }
     return render(request, "todo/home.html",context)
+
+def details(request, id):
+  task = Task.objects.get(id=id)
+  context = {
+    'task': task
+  }
+  return render(request, "todo/details.html",context)

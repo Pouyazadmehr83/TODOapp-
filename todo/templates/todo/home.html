@@ -29,7 +29,7 @@
 </nav>
 
     {% for x in task %}
-    <a href="#">
+    <a href="{% url 'todo:details' x.id %}">
     <div class="card text-white bg-info mb-3" style="max-width: 18rem;">
     <div class="card-header">{{x.title}}</div>
         <div class="card-body">
