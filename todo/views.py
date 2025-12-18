@@ -1,5 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import TaskForm
@@ -16,6 +18,27 @@ def home_view(request):
     day_param = request.GET.get("day")
     selected_day = None
     selected_day_label = None
+    search_query = request.GET.get("q", "").strip()
+    priority_filter = request.GET.get("priority", "")
+    status_filter = request.GET.get("status", "")
+
+    if search_query:
+        # قابلیت جدید: جستجوی زنده بر اساس عنوان و توضیحات
+        tasks = tasks.filter(
+            Q(title__icontains=search_query) | Q(description__icontains=search_query)
+        )
+
+    if priority_filter in dict(Task.PriorityChoices.choices):
+        # قابلیت جدید: فیلتر اولویت
+        tasks = tasks.filter(priority=priority_filter)
+    else:
+        priority_filter = ""
+
+    if status_filter in ["done", "pending"]:
+        # قابلیت جدید: فیلتر وضعیت انجام شدن
+        tasks = tasks.filter(is_done=(status_filter == "done"))
+    else:
+        status_filter = ""
     if day_param:
         try:
             selected_day = int(day_param)
@@ -29,11 +52,31 @@ def home_view(request):
             else:
                 selected_day = None
 
+    paginator = Paginator(tasks, 6)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    # جهت حفظ پارامترها در pagination و فیلتر روز
+    query_params = request.GET.copy()
+    dayless_query = query_params.copy()
+    dayless_query.pop("day", None)
+    dayless_query.pop("page", None)
+    query_params.pop("page", None)
+    base_query = query_params.urlencode()
+    query_without_day = dayless_query.urlencode()
+
     context = {
-        "tasks": tasks,
+        "tasks": page_obj.object_list,
+        "page_obj": page_obj,
         "week_days": WEEK_DAYS,
         "selected_day": selected_day,
         "selected_day_label": selected_day_label,
+        "search_query": search_query,
+        "priority_filter": priority_filter,
+        "status_filter": status_filter,
+        "base_query": base_query,
+        "query_without_day": query_without_day,
+        "priority_choices": Task.PriorityChoices.choices,
     }
     return render(request, "todo/home.html", context)
 
