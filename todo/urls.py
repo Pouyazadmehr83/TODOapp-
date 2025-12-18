@@ -7,4 +7,5 @@ urlpatterns = [
     path("", home_view, name="home"),
     path("details/<int:id>/", details, name="details"),
     path("create/", create_task, name="create"),
-]
+    path("details/<int:id>/edit",update,name="update")
+    ]
