@@ -17,6 +17,13 @@
       <p class="card-text">{{ task.description|default:"No description provided." }}</p>
       <ul class="list-unstyled mb-4">
         <li><strong>Priority:</strong> {{ task.get_priority_display }}</li>
+        <li><strong>Week day:</strong>
+          {% if task.day_of_week %}
+            {{ task.get_day_of_week_display }}
+          {% else %}
+            Not set
+          {% endif %}
+        </li>
         <li><strong>Due date:</strong>
           {% if task.due_date %}
             {{ task.due_date|date:"Y-m-d H:i" }}

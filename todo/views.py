@@ -5,16 +5,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .forms import TaskForm
 from .models import Task
 
-# توضیح: نگاشت روزهای هفته برای فیلتر کردن وظایف بر اساس due_date (شروع از یکشنبه)
-WEEK_DAYS = [
-    (1, "Sunday"),
-    (2, "Monday"),
-    (3, "Tuesday"),
-    (4, "Wednesday"),
-    (5, "Thursday"),
-    (6, "Friday"),
-    (7, "Saturday"),
-]
+# توضیح: نگاشت روزهای هفته برای فیلتر کردن وظایف (با استفاده از فیلد جدید مدل)
+WEEK_DAYS = list(Task.WeekDayChoices.choices)
 
 
 @login_required
@@ -31,8 +23,8 @@ def home_view(request):
             selected_day = None
         else:
             if selected_day in range(1, 8):
-                # قابلیت جدید: فیلتر روزانه بر اساس due_date.
-                tasks = tasks.filter(due_date__week_day=selected_day)
+                # قابلیت جدید: فیلتر روزانه بر اساس فیلد day_of_week.
+                tasks = tasks.filter(day_of_week=selected_day)
                 selected_day_label = dict(WEEK_DAYS).get(selected_day)
             else:
                 selected_day = None
@@ -107,4 +99,3 @@ def mark_task_done(request, id):
         task.save(update_fields=["is_done"])
         messages.success(request, "Task marked as done.")
     return redirect("todo:details", id=id)
-

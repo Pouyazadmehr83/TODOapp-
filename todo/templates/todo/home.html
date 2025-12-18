@@ -32,22 +32,30 @@
   <div class="row">
     {% for task in tasks %}
       <div class="col-lg-4 col-md-6 mb-4">
-        <div class="card h-100 shadow-sm">
+        {% with color=task.priority_color %}
+        <div class="card h-100 shadow-sm bg-{{ color }} {% if color == 'warning' %}text-dark{% else %}text-white{% endif %}">
           <div class="card-body d-flex flex-column">
             <div class="d-flex justify-content-between align-items-start mb-2">
               <h5 class="card-title mb-0">{{ task.title }}</h5>
-              <span class="badge badge-pill {% if task.is_done %}badge-success{% else %}badge-warning{% endif %}">
+              <span class="badge badge-pill {% if task.is_done %}badge-success{% else %}badge-light{% endif %}">
                 {% if task.is_done %}Done{% else %}Pending{% endif %}
               </span>
             </div>
-            <p class="card-text text-muted flex-grow-1">{{ task.description|default:"No description" }}</p>
+            <p class="card-text {% if color == 'warning' %}text-muted{% else %}text-white-50{% endif %} flex-grow-1">
+              {{ task.description|default:"No description" }}
+            </p>
             {% if task.due_date %}
               <p class="card-text mb-2">
-                <small class="text-muted">Due {{ task.due_date|date:"D, M j - H:i" }}</small>
+                <small class="{% if color == 'warning' %}text-muted{% else %}text-white-50{% endif %}">
+                  Due {{ task.due_date|date:"D, M j - H:i" }}
+                </small>
               </p>
             {% endif %}
             <div class="mb-3">
               <span class="badge badge-light text-dark">Priority: {{ task.get_priority_display }}</span>
+              {% if task.day_of_week %}
+                <span class="badge badge-light text-dark ml-1">{{ task.get_day_of_week_display }}</span>
+              {% endif %}
             </div>
             <div class="btn-group">
               <a class="btn btn-outline-primary btn-sm" href="{% url 'todo:details' task.id %}">Details</a>
@@ -59,6 +67,7 @@
             </div>
           </div>
         </div>
+        {% endwith %}
       </div>
     {% empty %}
       <div class="col-12">
