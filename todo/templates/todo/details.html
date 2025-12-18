@@ -1,11 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <p>hi</p>
-</body>
-</html>
+{% extends "todo/base.html" %}
+
+{% block title %}Task Details{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title">{{ task.title }}</h3>
+      <p class="card-text">{{ task.description|default:"No description provided." }}</p>
+      <ul class="list-unstyled">
+        <li><strong>Status:</strong> {% if task.is_done %}Done{% else %}Pending{% endif %}</li>
+        <li><strong>Priority:</strong> {{ task.get_priority_display }}</li>
+        <li><strong>Due date:</strong> {{ task.due_date|date:"Y-m-d H:i" }}</li>
+        <li><strong>Created:</strong> {{ task.created_at|date:"Y-m-d H:i" }}</li>
+      </ul>
+    </div>
+  </div>
+{% endblock %}
