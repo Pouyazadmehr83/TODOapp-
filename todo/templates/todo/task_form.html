@@ -1,16 +1,45 @@
 {% extends "todo/base.html" %}
 
-{% block title %}Create Task{% endblock %}
+{% block title %}{{ action|default:"Create" }} Task{% endblock %}
 
 {% block content %}
   <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
         <div class="card-body">
+          <h3 class="mb-4">{{ action|default:"Create" }} Task</h3>
+          <!-- توضیح: فرم واحد برای ایجاد و ویرایش استفاده می‌شود -->
           <form method="post" novalidate>
             {% csrf_token %}
-            {{ form.as_p }}
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+              </div>
+            {% endif %}
+            {% for field in form %}
+              <div class="form-group">
+                {% if field.field.widget.input_type == "checkbox" %}
+                  <div class="form-check">
+                    {{ field }}
+                    <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  </div>
+                  {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                  {% endif %}
+                {% else %}
+                  <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  {{ field }}
+                  {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                  {% endif %}
+                {% endif %}
+                {% for error in field.errors %}
+                  <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endfor %}
             <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{% url 'todo:home' %}" class="btn btn-light ml-2">Cancel</a>
           </form>
         </div>
       </div>

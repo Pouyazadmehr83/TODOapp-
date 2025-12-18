@@ -3,16 +3,57 @@
 {% block title %}Task Details{% endblock %}
 
 {% block content %}
-  <div class="card">
+  <div class="card shadow-sm">
     <div class="card-body">
-      <h3 class="card-title">{{ task.title }}</h3>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h3 class="card-title mb-1">{{ task.title }}</h3>
+          <p class="text-muted mb-0">Created {{ task.created_at|date:"Y-m-d H:i" }}</p>
+        </div>
+        <span class="badge {% if task.is_done %}badge-success{% else %}badge-warning{% endif %}">
+          {% if task.is_done %}Done{% else %}Pending{% endif %}
+        </span>
+      </div>
       <p class="card-text">{{ task.description|default:"No description provided." }}</p>
-      <ul class="list-unstyled">
-        <li><strong>Status:</strong> {% if task.is_done %}Done{% else %}Pending{% endif %}</li>
+      <ul class="list-unstyled mb-4">
         <li><strong>Priority:</strong> {{ task.get_priority_display }}</li>
-        <li><strong>Due date:</strong> {{ task.due_date|date:"Y-m-d H:i" }}</li>
-        <li><strong>Created:</strong> {{ task.created_at|date:"Y-m-d H:i" }}</li>
+        <li><strong>Due date:</strong>
+          {% if task.due_date %}
+            {{ task.due_date|date:"Y-m-d H:i" }}
+          {% else %}
+            Not set
+          {% endif %}
+        </li>
       </ul>
+
+      <div class="d-flex flex-wrap align-items-center mb-4">
+        <a class="btn btn-outline-secondary mr-2 mb-2" href="{% url 'todo:update' task.id %}">Edit</a>
+        <a class="btn btn-outline-primary mr-2 mb-2" href="{% url 'todo:home' %}">Back to list</a>
+        <form method="post" action="{% url 'todo:delete' task.id %}" class="mb-2">
+          {% csrf_token %}
+          <button class="btn btn-outline-danger" type="submit">Delete</button>
+        </form>
+      </div>
+
+      <!-- توضیح: با این فرم رادیویی کاربر می‌تواند با یک کلیک وضعیت انجام را true کند -->
+      <form method="post" action="{% url 'todo:mark_done' task.id %}" class="border rounded p-3 bg-light">
+        {% csrf_token %}
+        <div class="form-check">
+          <input class="form-check-input"
+                 type="radio"
+                 name="mark_done"
+                 id="markDone{{ task.id }}"
+                 value="true"
+                 {% if task.is_done %}checked disabled{% else %}onchange="this.form.submit()" {% endif %}>
+          <label class="form-check-label" for="markDone{{ task.id }}">
+            Mark this task as done
+          </label>
+        </div>
+        <input type="text"
+               class="form-control mt-3"
+               value="{% if task.is_done %}Task is completed{% else %}Waiting to be completed{% endif %}"
+               readonly>
+      </form>
     </div>
   </div>
 {% endblock %}
